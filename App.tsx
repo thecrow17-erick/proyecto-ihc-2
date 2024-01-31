@@ -1,118 +1,67 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { Text , View ,  TouchableOpacity, SafeAreaView } from 'react-native';
+import Voice, {SpeechStartEvent,SpeechEndEvent,SpeechResultsEvent} from '@react-native-voice/voice';
+import { useEffect, useState } from 'react';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export const App = () => {
+  const [result, setResult] = useState('');
+  const [isRecording,setIsRecording] = useState(false);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  useEffect(() => {
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechResults = onSpeechResults;
+    return ()=>{
+      Voice.destroy().then(Voice.removeAllListeners)
+    }
+  }, [])
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const onSpeechStart = (e:SpeechStartEvent) =>{
+    console.log(e);
+  }
+  const onSpeechEnd = (e:SpeechEndEvent)=>{
+    console.log(e);
+  }
+  const onSpeechResults = (e:SpeechResultsEvent)=>{
+    console.log(e);
+    setResult(e.value![0]);
+  }
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const startRecording = async()=>{
+    try {
+      await Voice.start('es-ES');
+      setIsRecording(true);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const stopRecording = async()=>{
+    try {
+      await Voice.stop();
+      setIsRecording(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView>
+      <View 
+        style={{paddingHorizontal: 10,paddingVertical: 20,backgroundColor: '#9bc1bc' }}
+      >
+        <Text style={{color: 'black',fontSize:30, fontWeight: 'bold' }}> Voice to Text</Text>
+      </View>
+      <Text style={{paddingHorizontal: 5,color: 'black',fontSize:20, }}>Resultado: {result}</Text>
+      <View 
+        style={{alignItems: 'center', justifyContent: 'center' , height: 100, width: 'auto'}}
+      >
+        <TouchableOpacity
+          style={{backgroundColor: `${isRecording?'#ff7676':'#B4FF9A'}`,padding: 10,borderRadius: 10}}
+          onPress={ isRecording? stopRecording : startRecording}
+        >
+          <Text
+          style={{color:`${isRecording? 'red':'green'}`, fontSize:20}}
+          >{isRecording? 'Dejar de grabar': 'Grabar'}</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+  )
+};
