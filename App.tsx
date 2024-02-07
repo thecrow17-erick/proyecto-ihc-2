@@ -1,11 +1,13 @@
-import { Text , View ,  TouchableOpacity, SafeAreaView } from 'react-native';
+import { Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
 import Voice, {SpeechStartEvent,SpeechEndEvent,SpeechResultsEvent} from '@react-native-voice/voice';
+import Tts from 'react-native-tts';
 import { useEffect, useState } from 'react';
 
 export const App = () => {
   const [result, setResult] = useState('');
   const [isRecording,setIsRecording] = useState(false);
 
+  Tts.setDefaultLanguage('es-ES');
   useEffect(() => {
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechEnd = onSpeechEnd;
@@ -13,8 +15,7 @@ export const App = () => {
     return ()=>{
       Voice.destroy().then(Voice.removeAllListeners)
     }
-  }, [])
-
+  },[])
   const onSpeechStart = (e:SpeechStartEvent) =>{
     console.log(e);
   }
@@ -24,6 +25,7 @@ export const App = () => {
   const onSpeechResults = (e:SpeechResultsEvent)=>{
     console.log(e);
     setResult(e.value![0]);
+    Tts.speak(e.value![0]);
   }
 
   const startRecording = async()=>{
