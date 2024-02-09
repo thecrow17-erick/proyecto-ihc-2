@@ -9,6 +9,6 @@ module.exports = {
     'react/jsx-uses-react': 'off',
     'space-infix-ops': 'off',
     'no-trailing-spaces': 'off',
-    'react-native/no-inline-styles': 0,
+    'react-native/no-inline-styles': 0,    
   },
 };
